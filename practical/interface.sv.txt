@@ -1,0 +1,75 @@
+interface pkt_if(input logic clk);
+
+   logic rst_n;
+
+   logic valid_in;
+   logic [47:0] dst_mac;
+   logic [47:0] src_mac;
+   logic [15:0] eth_type;
+   logic [10:0] length;
+   logic has_vlan;
+   logic [3:0] vlan_id;
+
+   logic broadcast_enable;
+   logic multicast_enable;
+   logic [3:0] vlan_min;
+   logic [3:0] vlan_max;
+
+   logic valid_out;
+   logic accept;
+   logic [2:0] drop_reason;
+
+   //--------------------------------
+   // Driver Clocking Block
+   //--------------------------------
+
+   clocking drv_cb @(posedge clk);
+
+      output valid_in;
+      output dst_mac;
+      output src_mac;
+      output eth_type;
+      output length;
+      output has_vlan;
+      output vlan_id;
+
+      output broadcast_enable;
+      output multicast_enable;
+      output vlan_min;
+      output vlan_max;
+
+   endclocking
+
+   //--------------------------------
+   // Monitor Clocking Block
+   //--------------------------------
+
+   clocking mon_cb @(posedge clk);
+
+      input valid_in;
+      input dst_mac;
+      input src_mac;
+      input eth_type;
+      input length;
+      input has_vlan;
+      input vlan_id;
+
+      input valid_out;
+      input accept;
+      input drop_reason;
+
+   endclocking
+
+   modport DRIVER (
+      clocking drv_cb,
+      input clk,
+      input rst_n
+   );
+
+   modport MONITOR (
+      clocking mon_cb,
+      input clk,
+      input rst_n
+   );
+
+endinterface

@@ -1,0 +1,33 @@
+class generator;
+
+   mailbox #(packet) gen2drv;
+   mailbox #(packet) gen2sb;
+
+   function new(
+      mailbox #(packet) gen2drv,
+      mailbox #(packet) gen2sb
+   );
+
+      this.gen2drv = gen2drv;
+      this.gen2sb  = gen2sb;
+
+   endfunction
+
+   task run(int count);
+
+      packet pkt;
+
+      repeat(count) begin
+
+         pkt = new();
+
+         assert(pkt.randomize());
+
+         gen2drv.put(pkt);
+         gen2sb.put(pkt);
+
+      end
+
+   endtask
+
+endclass

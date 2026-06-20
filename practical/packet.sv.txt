@@ -1,0 +1,25 @@
+class packet;
+
+   rand bit [47:0] dst_mac;
+   rand bit [47:0] src_mac;
+   rand bit [15:0] eth_type;
+   rand bit [10:0] length;
+   rand bit has_vlan;
+   rand bit [3:0] vlan_id;
+
+   bit expected_accept;
+   bit [2:0] expected_drop_reason;
+
+   constraint valid_length {
+      length inside {[64:1500]};
+   }
+
+   constraint valid_eth {
+      eth_type inside {
+         16'h0800,
+         16'h0806,
+         16'h86DD
+      };
+   }
+
+endclass

@@ -1,0 +1,50 @@
+class result_pkt;
+
+   bit accept;
+   bit [2:0] drop_reason;
+
+endclass
+
+class monitor;
+
+   virtual pkt_if.MONITOR vif;
+
+   mailbox #(result_pkt) mon2sb;
+
+   function new(
+      virtual pkt_if.MONITOR vif,
+      mailbox #(result_pkt) mon2sb
+   );
+
+      this.vif = vif;
+      this.mon2sb = mon2sb;
+
+   endfunction
+
+   task run();
+
+      result_pkt rsp;
+
+      forever begin
+
+         @(vif.mon_cb);
+
+         if(vif.mon_cb.valid_out) begin
+
+            rsp = new();
+
+            rsp.accept =
+               vif.mon_cb.accept;
+
+            rsp.drop_reason =
+               vif.mon_cb.drop_reason;
+
+            mon2sb.put(rsp);
+
+         end
+
+      end
+
+   endtask
+
+endclass

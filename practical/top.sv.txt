@@ -1,0 +1,60 @@
+module top;
+
+   bit clk;
+
+   always #0.25 clk = ~clk;
+   // 2GHz
+
+   pkt_if intf(clk);
+
+   bzu_pkt_filter dut(
+
+      .clk(clk),
+      .rst_n(intf.rst_n),
+
+      .valid_in(intf.valid_in),
+      .dst_mac(intf.dst_mac),
+      .src_mac(intf.src_mac),
+      .eth_type(intf.eth_type),
+      .length(intf.length),
+      .has_vlan(intf.has_vlan),
+      .vlan_id(intf.vlan_id),
+
+      .broadcast_enable(intf.broadcast_enable),
+      .multicast_enable(intf.multicast_enable),
+      .vlan_min(intf.vlan_min),
+      .vlan_max(intf.vlan_max),
+
+      .valid_out(intf.valid_out),
+      .accept(intf.accept),
+      .drop_reason(intf.drop_reason)
+
+   );
+
+   test t;
+
+   initial begin
+
+      intf.rst_n = 0;
+
+      repeat(5)
+         @(posedge clk);
+
+      intf.rst_n = 1;
+
+      intf.broadcast_enable = 1;
+      intf.multicast_enable = 1;
+
+      intf.vlan_min = 1;
+      intf.vlan_max = 10;
+
+      t = new(
+         intf.DRIVER,
+         intf.MONITOR
+      );
+
+      t.run();
+
+   end
+
+endmodule

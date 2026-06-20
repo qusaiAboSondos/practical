@@ -1,0 +1,18 @@
+class agent;
+
+   generator gen;
+   driver drv;
+
+   function new(
+      virtual pkt_if.DRIVER vif,
+      mailbox #(packet) gen2drv,
+      mailbox #(packet) gen2sb
+   );
+
+      gen = new(gen2drv,gen2sb);
+
+      drv = new(vif,gen2drv);
+
+   endfunction
+
+endclass

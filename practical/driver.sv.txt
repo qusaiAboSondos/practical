@@ -1,0 +1,44 @@
+class driver;
+
+   virtual pkt_if.DRIVER vif;
+
+   mailbox #(packet) gen2drv;
+
+   function new(
+      virtual pkt_if.DRIVER vif,
+      mailbox #(packet) gen2drv
+   );
+
+      this.vif = vif;
+      this.gen2drv = gen2drv;
+
+   endfunction
+
+   task run();
+
+      packet pkt;
+
+      forever begin
+
+         gen2drv.get(pkt);
+
+         @(vif.drv_cb);
+
+         vif.drv_cb.valid_in <= 1;
+
+         vif.drv_cb.dst_mac  <= pkt.dst_mac;
+         vif.drv_cb.src_mac  <= pkt.src_mac;
+         vif.drv_cb.eth_type <= pkt.eth_type;
+         vif.drv_cb.length   <= pkt.length;
+         vif.drv_cb.has_vlan <= pkt.has_vlan;
+         vif.drv_cb.vlan_id  <= pkt.vlan_id;
+
+         @(vif.drv_cb);
+
+         vif.drv_cb.valid_in <= 0;
+
+      end
+
+   endtask
+
+endclass

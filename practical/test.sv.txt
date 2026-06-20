@@ -1,0 +1,27 @@
+class test;
+
+   env e;
+
+   function new(
+      virtual pkt_if.DRIVER drv_vif,
+      virtual pkt_if.MONITOR mon_vif
+   );
+
+      e = new(
+         drv_vif,
+         mon_vif
+      );
+
+   endfunction
+
+   task run();
+
+      e.run();
+
+      #5000;
+
+      $display("TEST FINISHED");
+
+   endtask
+
+endclass

@@ -1,0 +1,79 @@
+class scoreboard;
+
+   mailbox #(packet) exp_mb;
+   mailbox #(result_pkt) act_mb;
+
+   int pass_count;
+   int fail_count;
+
+   function new(
+      mailbox #(packet) exp_mb,
+      mailbox #(result_pkt) act_mb
+   );
+
+      this.exp_mb = exp_mb;
+      this.act_mb = act_mb;
+
+   endfunction
+
+   task run();
+
+      packet pkt;
+      result_pkt rsp;
+
+      forever begin
+
+         exp_mb.get(pkt);
+         act_mb.get(rsp);
+
+         calculate_expected(pkt);
+
+         if(pkt.expected_accept == rsp.accept &&
+            pkt.expected_drop_reason == rsp.drop_reason)
+         begin
+
+            pass_count++;
+
+            $display("PASS");
+
+         end
+         else begin
+
+            fail_count++;
+
+            $display("FAIL");
+
+         end
+
+      end
+
+   endtask
+
+   task calculate_expected(packet pkt);
+
+      if(pkt.length < 64 || pkt.length > 1500) begin
+
+         pkt.expected_accept = 0;
+         pkt.expected_drop_reason = 1;
+
+      end
+
+      else if(pkt.eth_type != 16'h0800 &&
+              pkt.eth_type != 16'h0806 &&
+              pkt.eth_type != 16'h86DD) begin
+
+         pkt.expected_accept = 0;
+         pkt.expected_drop_reason = 4;
+
+      end
+
+      else begin
+
+         pkt.expected_accept = 1;
+         pkt.expected_drop_reason = 0;
+
+      end
+
+   endtask
+
+endclass
